@@ -58,7 +58,7 @@ task configured {
 	webAppDirName = 'webapp'
 
 	war {
-		from rootProject.file('/webapp')
+		from rootProject.file('/home/bluepoet/build-projects/glider/webapp')
 	}
 
 	task explodedWar(type: Copy) {
