@@ -1,0 +1,95 @@
+ext {
+	javaVersion = '1.6'
+	fileEncoding = 'UTF-8'
+	springVersion = '3.0.5.RELEASE'
+	springSecurityVersion ='3.0.5.RELEASE'
+	slf4jVersion = '1.6.4'
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse-wtp'
+
+buildDir = 'target'
+
+repositories {
+   flatDir {
+        dirs '/webapp/WEB-INF/lib'
+    }
+}
+
+dependencies {
+    compile fileTree(dir: "/webapp/WEB-INF/lib", includes: ['*.jar'])
+}
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+[compileJava, compileTestJava]*.options*.compilerArgs = ['-Xlint:-options']
+sourceCompatibility = javaVersion
+targetCompatibility = javaVersion
+
+task compile(dependsOn: [compileJava, compileTestJava]) {
+	println 'compile start!!!'
+	description = 'Compile Java/Test sources'
+	group = 'build'
+}
+
+tasks.eclipse.dependsOn cleanEclipse
+
+eclipse {
+    project {
+    	name = project.name
+
+    	natures 'org.springframework.ide.eclipse.core.springnature'
+
+    	buildCommand 'org.springframework.ide.eclipse.core.springbuilder'
+    }
+
+    classpath {
+    	defaultOutputDir = file("${buildDir}/classes")
+    	downloadSources = true
+    	downloadJavadoc = false
+    }
+}
+
+task configured {
+	println 'configure start!!'
+
+	apply plugin: 'war'
+
+	webAppDirName = 'webapp'
+
+	war {
+		from rootProject.file('/webapp')
+	}
+
+	task explodedWar(type: Copy) {
+		description = 'Generate exploded war'
+			group = 'build'
+			dependsOn war.dependsOn
+
+		into "${buildDir}/exploded"
+		with war
+	}
+
+	eclipse {
+		wtp {
+			component {
+				contextPath = "/${project.name}"
+			}
+			facet {
+				facet name: 'jst.web', version: '3.0'
+				facet name: 'jst.java', version: '6.0'
+			}
+		}
+	}
+}
+
+task initProject(description: 'initialize project') << {
+    createDir = {
+        println "create source directory: $it"
+        it.mkdirs()
+    }
+    sourceSets*.java.srcDirs*.each createDir
+    sourceSets*.resources.srcDirs*.each createDir
+    createDir webAppDir
+    createDir new File(webAppDir, '/WEB-INF')
+}
