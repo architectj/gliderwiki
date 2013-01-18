@@ -483,10 +483,10 @@ public class CommonController {
 			weUser = commonService.getUserInfo(weUserIdx);					// 회원 기본 정보 조회
 			weProfile = commonService.getUserProfileInfo(weUserIdx);		// 회원 프로파일 정보 조회
 			String lastVisitDate = weProfile.getWe_visit_date().toString();
-			
+
 			logger.debug("### lastVisitDate : " + lastVisitDate);
-			
-			
+
+
 			param.put("result", "SUCCESS");
 			param.put("status", SystemConst.CALL_SUCCESS);
 			param.put("connectionListSize", myConnectionList.size()+"");
@@ -508,4 +508,8 @@ public class CommonController {
 	}
 
 
-} 
+	@RequestMapping(value="/test", method = RequestMethod.GET)
+	public String test() throws Throwable {
+		return "test";
+	}
+}
